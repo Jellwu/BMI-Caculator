@@ -3,8 +3,10 @@ let hnum = document.querySelector('.height');
 let wnum = document.querySelector('.weight');
 let resultbtn = document.querySelector('.result');
 let recordlist = document.querySelector('.recorder');
+let dropBtn = document.querySelector('.alldelete');
 //宣告local取到的字串轉陣列放到data
 let data = JSON.parse(localStorage.getItem('Usernum')) || []
+//let data=[];
 let newdt = new Date();
 updatepage();
 
@@ -16,7 +18,6 @@ function insertdata(){
   let BMI = (weight) / ((height/100) * (height/100));
   let showBMI = (Math.round(BMI*100)/100);
   let level="";
-
   let fulldate = ''+ newdt.getFullYear() +'-'+ parseInt(newdt.getMonth()+1) +'-' + newdt.getDate() +''
 
   switch(true){
@@ -52,9 +53,19 @@ function joinstr(){
   let str ="";
   for (let i = 0; i < data.length; i++) {
     //累加html
-    str += '<li data-num="'+ (i+1) +'"><span class="Listtitle">'+ data[i].level+'</span><span><small>BMI</small>'
-    + data[i].showBMI +'</span><span><small>weight</small>'+ data[i].weight +'KG</span><span><small>height</small>'
-    + data[i].height +'CM</span><span><small>Date</small>'+ data[i].fulldate+'</span></li>';
+    let level = data[i].level;
+    let showBMI = data[i].showBMI;
+    let weight = data[i].weight;
+    let height = data[i].height;
+    let fulldate = data[i].fulldate;
+    str += `<li>
+    <span class="Listtitle">${level}</span>
+    <span><small>BMI</small>${showBMI}</span>
+    <span><small>weight</small>${weight}KG</span>
+    <span><small>height</small>${height}CM</span>
+    <span><small>Date</small>${fulldate}</span>
+    <span><a href="#" data-num='${i}'>刪除</a></span>
+    </li>`
     }
   return str;
 }
@@ -65,6 +76,7 @@ function updatepage(){
   //宣告欲修改樣式的DOM
   let titlecolor = document.querySelectorAll('.Listtitle');
   let liborder = document.querySelectorAll('.recorder li');
+  let deleteData = document.querySelector('.recorder .delete');
   //修改樣式迴圈(抓.Listtile的陣列數量)
   for (let i = 0; i < titlecolor.length; i++) {
     switch(titlecolor[i].textContent){
@@ -115,7 +127,7 @@ function updatepage(){
       inputimg.innerHTML = '<img src="images/icons_loop.png" alt=""><div class="bmitext">BMI</div>'
     //先將資料inner到img裡面才能給下面抓，這邊宣告不能拿到上面
       let changetext = document.querySelector('.bmitext');
-      //修改樣式
+    //修改樣式
       switch(btndata.level){
         case "過輕":
         resulttext.style.color="#6C93DB";
@@ -156,5 +168,28 @@ function updatepage(){
     }
   }
 
+//5.刪除資料函式
+function dropdata(e){
+  e.preventDefault();
+  if(e.target.nodeName!=="A"){return}
+  dropNum = e.target.dataset.num;
+
+  data.splice(dropNum,1);
+  localStorage.setItem('Usernum',JSON.stringify(data));
+  updatepage();
+  window.location.reload();
+}
+
+//6.一鍵刪除函式
+function dropAll(e){
+  e.preventDefault();
+  data=[];
+  localStorage.setItem('Usernum',JSON.stringify(data));
+  updatepage();
+  window.location.reload();
+}
+
+//觸發事件
 resultbtn.addEventListener('click',insertdata,false);
-//resultbtn.addEventListener('click',refreshbtn,false);
+recordlist.addEventListener('click',dropdata,false);
+dropBtn.addEventListener('click',dropAll,false);
